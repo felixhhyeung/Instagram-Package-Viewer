@@ -1,0 +1,30 @@
+<ion-header>
+  <ion-toolbar>
+	<ion-buttons slot="start">
+		<ion-back-button></ion-back-button>
+	</ion-buttons>
+    <ion-title>{{ username }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+	<div *ngIf="userDescription" class="ion-padding-start ion-padding-end">
+		<div style="height: 140px;">
+			<div class="" style="height: 140px; width: 140px;">
+				<img class="circle-image" [src]="userDescription.icon" style="border-color: grey; border-style: solid; border-width: 2px;">
+			</div>
+		</div>
+		<!-- description section -->
+		<p>{{ userDescription.biography }}</p>
+		<div style="display: flex;">
+			<ion-button expend="block" style="flex: 1;" color="primary">Follow</ion-button>
+			<ion-button expend="block" style="flex: 1;" color="secondary" fill="outline">Message</ion-button>
+		</div>
+	</div>
+	<div *ngIf="posts" class="dev" style="display: flex; flex-flow: row wrap;">
+		<div *ngFor="let post of posts" style="flex: 0 1 33%;">
+			<img [src]="post.mediaArray[0].thumbnail" style="">
+		</div>
+		<!-- <img class="" [src]="posts[0].mediaArray[0].thumbnail" style="height: 100px; width: 100px;"> -->
+	</div>
+</ion-content>
