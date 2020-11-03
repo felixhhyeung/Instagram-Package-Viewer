@@ -102,8 +102,8 @@ export class PackageService {
   	return new Promise<Post[]>(async (resolve, reject) => {
 	  	const promises = [];
 	  	const entries = await this.file.listDir(this.file.applicationDirectory, `public/assets/packages/${username}`);
-  		entries.filter(x => x['name'].includes(`.jpg`)).forEach(x => {
-  			promises.push(this.getPost(username, x['name'].split('.').slice(0, -1).join('.')));
+  		entries.filter(x => x['name'].includes(`.json`) && !x['name'].includes(username)).forEach(x => {
+  			promises.push(this.getPost(username, x['name'].split('.').slice(0, -1).join('.'), entries));
   		});
   		Promise.all(promises).then(values => {
   			resolve(values);
@@ -111,18 +111,18 @@ export class PackageService {
   	});
   }
 
-  getPost = function(username: string, fileGroupName: string): Promise<Post> {
+  getPost = function(username: string, fileGroupName: string, entries?: any): Promise<Post> {
   	return new Promise<Post>(async (resolve, reject) => {
 	  	const post = {
-				mediaArray: await this.getMediaArray(username, fileGroupName),
-				caption: await this.getCaption(username, fileGroupName),
+				mediaArray: await this.getMediaArray(username, fileGroupName, entries),
+				caption: await this.getCaption(username, fileGroupName, entries),
 			};
 			resolve(post);
   	});
   }
 
-  async getMediaArray(username: string, fileGroupName: string): Promise<Media[]> {
-  	const entries = await this.file.listDir(this.file.applicationDirectory, `public/assets/packages/${username}`);
+  async getMediaArray(username: string, fileGroupName: string, entries?: any): Promise<Media[]> {
+  	entries = entries === void 0 ? await this.file.listDir(this.file.applicationDirectory, `public/assets/packages/${username}`): entries;
   	const mediaArray: Media[] = [];
   	entries.filter(x => x['name'].includes(fileGroupName) && x['name'].includes(`.jpg`)).forEach(x => {
   		mediaArray.push({
@@ -133,7 +133,7 @@ export class PackageService {
   	return mediaArray;
   }
 
-  async getCaption(username: string, fileGroupName: string): Promise<string> {
+  async getCaption(username: string, fileGroupName: string, entries?: any): Promise<string> {
   	return 'my caption';
   }
 }
