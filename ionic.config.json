@@ -1,0 +1,7 @@
+{
+  "name": "Instagram-Package-Viewer",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
