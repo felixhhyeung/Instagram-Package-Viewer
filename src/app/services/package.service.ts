@@ -23,12 +23,47 @@ export interface Media {
 	source: any,
 }
 
+Array.prototype.sortedInsert = sortedInsert;
+
+declare global {
+  interface Array<T> {
+    sortedInsert(element: T, comparator: any): number;
+  }
+}
+
+function sortedInsert<T>(element: T, comparatorFn: any): number {
+    const insertionIndex: number = findInsertionIndex(this, element, comparatorFn);
+    this.splice(insertionIndex, 0, element);
+    return insertionIndex;
+}
+
+function findInsertionIndex<T>(arr: T[], element: T, comparatorFn: any): number {
+  if (arr.length === 0) {
+    return 0;
+  }
+
+  let low: number = 0;
+  let high: number = arr.length - 1;
+
+  while (low <= high) {
+    const mid: number = Math.floor(low + (high - low) / 2);
+    const comparison: number = comparatorFn(element, arr[mid]);
+    if (comparison === 0) {
+      return mid;
+    } else if (comparison < 0) {
+      high = mid - 1;
+    } else {
+      low = mid + 1;
+    }
+  }
+  return low;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 
 export class PackageService {
-  // usernames;
 
   constructor(
   	private file: File,
@@ -78,6 +113,15 @@ export class PackageService {
   	return this.domSanitizer.bypassSecurityTrustUrl(Capacitor.convertFileSrc(url));
   }
 
+  async getText(url: string): Promise<string> {
+    let contents = await Filesystem.readFile({
+      path: url,
+      directory: FilesystemDirectory.Documents,
+      encoding: FilesystemEncoding.UTF8
+    });
+    return contents['data'];
+  }
+
   async getIcon(username: string): Promise<SafeUrl> {
   	const entries = await this.file.listDir(this.file.applicationDirectory, `public/assets/packages/${username}`);
 		const nativeURL = entries.filter(x => x['name'].includes('_profile_pic.jpg'))[0]['nativeURL'];
@@ -87,24 +131,50 @@ export class PackageService {
   async getBiography(username: string): Promise<string> {
   	const entries = await this.file.listDir(this.file.applicationDirectory, `public/assets/packages/${username}`);
 		const nativeURL = entries.filter(x => x['name'].includes(`${username}_`))[0]['nativeURL'];
-		// console.log(`nativeURL: ${nativeURL}`);
-		const servingURL = Capacitor.convertFileSrc(nativeURL);
-		let contents = await Filesystem.readFile({
-	    path: nativeURL,
-	    directory: FilesystemDirectory.Documents,
-	    encoding: FilesystemEncoding.UTF8
-	  });
-	  let json = JSON.parse(contents['data']);
+	  const json = JSON.parse(await this.getText(nativeURL));
 		return json['node']['biography'];
+  }
+
+  getFileGroupNames(fileEntries): string[] {
+    const fileGroupNames: string[] = [];
+    fileEntries.forEach(x => {
+      // console.log(`fileGroupNames.length: ${fileGroupNames.length}`);
+      const currentFileGroupName = x['name'].split('.').slice(0, -1).join('.');
+      // skip file with no extension
+      if(currentFileGroupName != '') {
+        const leFileGroupNameIndex = fileGroupNames.findIndex(y => currentFileGroupName.includes(y));
+        const geFileGroupNameIndex = fileGroupNames.findIndex(y => y.includes(currentFileGroupName));
+        if(leFileGroupNameIndex != -1) {
+          // le found
+          if(geFileGroupNameIndex != -1) {
+            // eq, do nothing
+          } else {
+            // lt, do nothing
+          }
+        } else {
+          // le not found
+          if(geFileGroupNameIndex != -1) {
+            // gt found, replace
+            // console.log(`found geFileGroupNameIndex, replaced ${fileGroupNames[geFileGroupNameIndex]} by ${currentFileGroupName}`);
+            fileGroupNames[geFileGroupNameIndex] = currentFileGroupName;
+          } else {
+            // not found, sorted insert
+            // console.log(`not found, insert: ${currentFileGroupName}`);
+            fileGroupNames.sortedInsert(currentFileGroupName, (a, b) => b.localeCompare(a));
+            // fileGroupNames.push(currentFileGroupName);
+          }
+        }
+      }
+    });
+    // console.log(`fileGroupNames: ${JSON.stringify(fileGroupNames)}`);
+    return fileGroupNames;
   }
 
   getPosts = function(username: string) {
   	return new Promise<Post[]>(async (resolve, reject) => {
 	  	const promises = [];
 	  	const entries = await this.file.listDir(this.file.applicationDirectory, `public/assets/packages/${username}`);
-  		entries.filter(x => x['name'].includes(`.json`) && !x['name'].includes(username)).forEach(x => {
-  			promises.push(this.getPost(username, x['name'].split('.').slice(0, -1).join('.'), entries));
-  		});
+  		this.getFileGroupNames(entries).filter(x => !x.includes(username) && !x.includes(`_profile_pic`)).forEach(x => promises.push(this.getPost(username, x, entries)));
   		Promise.all(promises).then(values => {
   			resolve(values);
   		});
@@ -127,13 +197,20 @@ export class PackageService {
   	entries.filter(x => x['name'].includes(fileGroupName) && x['name'].includes(`.jpg`)).forEach(x => {
   		mediaArray.push({
   			thumbnail: this.getSafeUrl(x['nativeURL']),
-  			source: null,
+  			source: this.getSafeUrl(x['nativeURL']),
   		});
   	});
+    // console.log(`mediaArray.length: ${mediaArray.length}`);
   	return mediaArray;
   }
 
   async getCaption(username: string, fileGroupName: string, entries?: any): Promise<string> {
-  	return 'my caption';
+  	  entries = entries === void 0 ? await this.file.listDir(this.file.applicationDirectory, `public/assets/packages/${username}`): entries;
+      let caption = "";
+      entries.filter(x => x['name'].includes(fileGroupName) && x['name'].includes(`.txt`)).forEach(x => {
+        caption += `${this.getText(x['nativeURL'])}\n`;
+      });
+      // console.log(`caption: ${caption}`);
+      return caption;
   }
 }
