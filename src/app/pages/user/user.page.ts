@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, NavigationExtras } from '@angular/router';
 import { PackageService, UserDescription, Post } from '../../services/package.service';
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-user',
@@ -14,6 +15,7 @@ export class UserPage implements OnInit {
   constructor(
   	private activatedRoute: ActivatedRoute,
   	private packageService: PackageService,
+    private navController: NavController,
   ) { }
 
   ngOnInit() {
@@ -22,8 +24,19 @@ export class UserPage implements OnInit {
   		this.userDescription = res;
   	});
   	this.packageService.getPosts(this.username).then(res => {
-  		this.posts = res;
+  		// console.log(`posts: ${JSON.stringify(res)}`);
+      // // You cannot serialise a SafeUrl
+      // res[0].mediaArray[0] = JSON.parse(JSON.stringify(res[0].mediaArray[0]));
+      this.posts = res;
   	});
   }
 
+  viewPost(post: Post): void {
+    const navigationExtras: NavigationExtras = {
+      queryParams: {
+        postHash: this.packageService.storeTempObject(post),
+      }
+    };
+    this.navController.navigateForward(['post'], navigationExtras);
+  }
 }

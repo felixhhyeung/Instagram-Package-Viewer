@@ -4,6 +4,8 @@ import { Plugins, FilesystemDirectory, FilesystemEncoding, Capacitor } from '@ca
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
+import { VideoEditor, CreateThumbnailOptions } from '@ionic-native/video-editor';
+import { Md5 } from 'ts-md5/dist/md5';
 
 const { Filesystem } = Plugins;
 
@@ -20,7 +22,13 @@ export interface Post {
 
 export interface Media {
 	thumbnail: SafeUrl,
+  type: string,
 	source: any,
+}
+
+export interface TempObject {
+  hash: Int32Array | string,
+  object: any,
 }
 
 Array.prototype.sortedInsert = sortedInsert;
@@ -64,11 +72,12 @@ function findInsertionIndex<T>(arr: T[], element: T, comparatorFn: any): number 
 })
 
 export class PackageService {
-
+  tempObjects: TempObject[] = [];
   constructor(
   	private file: File,
   	private domSanitizer: DomSanitizer,
   	public httpClient: HttpClient,
+    // private videoEditor: VideoEditor,
   ) {
   	// // this.file.checkDir(this.file.dataDirectory, '').then(_ => console.log('Directory exists')).catch(error => console.log(`Directory does not exist, error: ${error}`));
   	// this.file.listDir(this.file.applicationDirectory, 'public/assets/packages').then(lsUsernames => {
@@ -183,34 +192,125 @@ export class PackageService {
 
   getPost = function(username: string, fileGroupName: string, entries?: any): Promise<Post> {
   	return new Promise<Post>(async (resolve, reject) => {
-	  	const post = {
+      const post = {
 				mediaArray: await this.getMediaArray(username, fileGroupName, entries),
 				caption: await this.getCaption(username, fileGroupName, entries),
 			};
+      // console.log(`post: ${JSON.stringify(post)}`);
 			resolve(post);
   	});
   }
 
   async getMediaArray(username: string, fileGroupName: string, entries?: any): Promise<Media[]> {
-  	entries = entries === void 0 ? await this.file.listDir(this.file.applicationDirectory, `public/assets/packages/${username}`): entries;
+    entries = entries === void 0 ? await this.file.listDir(this.file.applicationDirectory, `public/assets/packages/${username}`): entries;
   	const mediaArray: Media[] = [];
-  	entries.filter(x => x['name'].includes(fileGroupName) && x['name'].includes(`.jpg`)).forEach(x => {
-  		mediaArray.push({
-  			thumbnail: this.getSafeUrl(x['nativeURL']),
-  			source: this.getSafeUrl(x['nativeURL']),
-  		});
-  	});
-    // console.log(`mediaArray.length: ${mediaArray.length}`);
+    const extensionToType = {
+      'mp4': 'video',
+      'jpg': 'image',
+    };
+    for (const entry of entries.filter(x =>
+      x['name'].includes(fileGroupName)
+      && (
+        x['name'].includes(`.jpg`)
+        || x['name'].includes(`.mp4`)
+      )
+    )) {
+      const filename = entry['name'].split('.').slice(0, -1).join('.');
+      const extension = entry['name'].split(`${filename}.`).pop();
+      mediaArray.push({
+        thumbnail: this.getSafeUrl(await this.getThumbnail(entry['nativeURL'])),
+        source: this.getSafeUrl(entry['nativeURL']),
+        type: extensionToType[extension],
+      });
+    }
+    // console.log(`mediaArray: ${JSON.stringify(mediaArray)}`);
   	return mediaArray;
   }
 
+  testPromise = function() {
+    return new Promise<string>((resolve, reject) => {
+      setTimeout(() => {
+        resolve("waited");
+      }, 1000);
+    });
+  }
+
   async getCaption(username: string, fileGroupName: string, entries?: any): Promise<string> {
-  	  entries = entries === void 0 ? await this.file.listDir(this.file.applicationDirectory, `public/assets/packages/${username}`): entries;
-      let caption = "";
-      entries.filter(x => x['name'].includes(fileGroupName) && x['name'].includes(`.txt`)).forEach(x => {
-        caption += `${this.getText(x['nativeURL'])}\n`;
+    entries = entries === void 0 ? await this.file.listDir(this.file.applicationDirectory, `public/assets/packages/${username}`): entries;
+    let caption = "";
+    for (const entry of entries.filter(x => x['name'].includes(fileGroupName) && x['name'].includes(`.txt`))) {
+      caption += `${await this.getText(entry['nativeURL'])}\n`;
+    }
+    return caption;
+  }
+
+  async cachedFileExists(cachedFile: string): Promise<boolean> {
+    try {
+      await Filesystem.readFile({
+        path: `${cachedFile}`,
+        directory: FilesystemDirectory.Cache
       });
-      // console.log(`caption: ${caption}`);
-      return caption;
+      return true;
+    } catch(error) {
+      return false;
+    }
+  }
+
+  async getThumbnail(url: string): Promise<string> {
+    const hash = Md5.hashStr(url);
+    // this.mediaCapture.captureVideo().then((videoData:Array<MediaFile>)=>{
+
+    // check if cache has the hash
+    if(await this.cachedFileExists(`${hash}.jpg`)) {
+      const hashUriResult = await Filesystem.getUri({
+        path: `${hash}.jpg`,
+        directory: FilesystemDirectory.Cache
+      });
+      return hashUriResult.uri;
+    }
+
+    // let filedir = this.file.dataDirectory;
+
+    // var path = videoData[0].fullPath.replace('/private','file://');
+    const ind = (url.lastIndexOf('/')+1);
+    const filename = url.substring(ind).split('.').slice(0, -1).join('.');
+    const extension = url.split(`${filename}.`).pop();
+    switch(extension) {
+    case 'jpg':
+      // lazy for jpg
+      return url;
+    case 'mp4':
+      const createThumbnailOptions: CreateThumbnailOptions = {
+        fileUri: url,
+        // width:160,
+        // height:206,
+        atTime:1,
+        outputFileName: `${hash}`,
+        quality:50,
+      };
+      const videoThumbnail = await VideoEditor.createThumbnail(createThumbnailOptions);
+      return videoThumbnail;
+    default:
+      return null;
+    }
+  }
+
+  storeTempObject(object: any): Int32Array | string {
+    const hash = Md5.hashStr(JSON.stringify(object));
+    this.tempObjects.push({
+      hash: hash,
+      object: object,
+    });
+    return hash;
+  }
+
+  getTempObject(hash: Int32Array | string): any {
+    const objectIndex = this.tempObjects.findIndex(x => x.hash == hash);
+    if(objectIndex != -1) {
+      // found
+      return this.tempObjects.splice(objectIndex, 1)[0].object;
+    } else {
+      return null;
+    }
   }
 }

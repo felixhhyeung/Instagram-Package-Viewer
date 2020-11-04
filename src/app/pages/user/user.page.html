@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
 	<ion-buttons slot="start">
-		<ion-back-button></ion-back-button>
+		<ion-back-button defaultHref="home"></ion-back-button>
 	</ion-buttons>
     <ion-title>{{ username }}</ion-title>
   </ion-toolbar>
@@ -22,7 +22,7 @@
 		</div>
 	</div>
 	<div *ngIf="posts" class="" style="display: flex; flex-flow: row wrap;">
-		<div *ngFor="let post of posts" style="flex: 0 1 33%;">
+		<div *ngFor="let post of posts" (click)="viewPost(post)" style="flex: 0 1 33%;">
 			<img [src]="post.mediaArray[0].thumbnail" style="">
 		</div>
 		<!-- <img class="" [src]="posts[0].mediaArray[0].thumbnail" style="height: 100px; width: 100px;"> -->
