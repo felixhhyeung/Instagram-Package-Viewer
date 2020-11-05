@@ -22,9 +22,8 @@
 		</div>
 	</div>
 	<div *ngIf="posts" class="" style="display: flex; flex-flow: row wrap;">
-		<div *ngFor="let post of posts" (click)="viewPost(post)" style="flex: 0 1 33%;">
-			<img [src]="post.mediaArray[0].thumbnail" style="">
+		<div *ngFor="let post of posts" class="" (click)="viewPost(post)" style="flex: 0 1 33%;">
+			<img class="" [src]="post.mediaArray[0].thumbnail" style="">
 		</div>
-		<!-- <img class="" [src]="posts[0].mediaArray[0].thumbnail" style="height: 100px; width: 100px;"> -->
 	</div>
 </ion-content>
