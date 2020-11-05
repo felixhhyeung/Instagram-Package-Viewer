@@ -1076,10 +1076,29 @@
   dependencies:
     tslib "^1.9.0"
 
+"@capacitor/ios@2.4.2":
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/ios/-/ios-2.4.2.tgz#cb608c8009a4609f2c654d78bf21967ecf3b0724"
+  integrity sha512-DqfDBrbaVKV2nkjMF7uL58G5QbJHoQVu/qdw/Uh5QSVkHqsY0lBKyi5nxhH3+cqBBMl+oGNB9EMBHovRVdR0EQ==
+
 "@ionic-native/core@^5.0.0":
   version "5.29.0"
   resolved "https://registry.yarnpkg.com/@ionic-native/core/-/core-5.29.0.tgz#70f363a97c6f5be3849bda311693c8415999ceb7"
   integrity sha512-dmS6rL38FAWCX9Xry2rtaMEe144MJgZ/8YVR5tVfWNSRmOOnDg+cZTYwt8Qeqm9ndqFBCjGh8PE7mteC8FvUGg==
+  dependencies:
+    "@types/cordova" latest
+
+"@ionic-native/file-transfer@^5.29.0":
+  version "5.29.0"
+  resolved "https://registry.yarnpkg.com/@ionic-native/file-transfer/-/file-transfer-5.29.0.tgz#9acaeb901d419d19afb89ec05d4e64e78f34e29b"
+  integrity sha512-4Kwaf3AWfasXeMAr/k8Z9wB1/7tvfL6zJhqn/dKX8XWuT1bo1Ynzd2BXq+yIKhHgkiMhhzx+6h6ilTAApPN4+Q==
+  dependencies:
+    "@types/cordova" latest
+
+"@ionic-native/file@^5.29.0":
+  version "5.29.0"
+  resolved "https://registry.yarnpkg.com/@ionic-native/file/-/file-5.29.0.tgz#81e17441e933a7a876dc71fc819d50446d790ce8"
+  integrity sha512-fPIjI/349LiVYIBrceaXlETTUrFhzS5Dx93e0d40Ekd5nfEu6N9H+n8B20W9+OdfKRzHRIvOZ42GgXntk61FMQ==
   dependencies:
     "@types/cordova" latest
 
@@ -1094,6 +1113,20 @@
   version "5.29.0"
   resolved "https://registry.yarnpkg.com/@ionic-native/status-bar/-/status-bar-5.29.0.tgz#4fbecfebfb8e73b6cfb48f2aaaaaee9d449d53cc"
   integrity sha512-fv4mfH3Fb99fIEOtoxUFYvw+YW10Nk0lUCUkdGTX4LV8Big2o3TfEcUczGQOXJ28Wz1WrAuzh6l9A5JiK3umLw==
+  dependencies:
+    "@types/cordova" latest
+
+"@ionic-native/video-editor@^5.29.0":
+  version "5.29.0"
+  resolved "https://registry.yarnpkg.com/@ionic-native/video-editor/-/video-editor-5.29.0.tgz#6dbb8b9e8752a6da02974179bbbc6f4b28bf6c62"
+  integrity sha512-JcpyErNgNZYKswIWI4z9+VHGBE9m+/g8LVsn8qKJqYRtrX5OAVZNI7hGFYP373KoXmbW0XLJwfSW7Szhy8vH9g==
+  dependencies:
+    "@types/cordova" latest
+
+"@ionic-native/zip@^5.29.0":
+  version "5.29.0"
+  resolved "https://registry.yarnpkg.com/@ionic-native/zip/-/zip-5.29.0.tgz#6d17855c598bafcd3213b3b2b9a6dd04e377ed47"
+  integrity sha512-ydb5MH+VJoJTlEydCnPna2w7yPks8OJtYasugJUk7C7QO5bK6lZj2n0vVNcRwUeQFozoJfVGU3e6nbE9I+0u+g==
   dependencies:
     "@types/cordova" latest
 
@@ -2940,6 +2973,26 @@ copy-webpack-plugin@^6.0.3:
     schema-utils "^3.0.0"
     serialize-javascript "^5.0.1"
     webpack-sources "^1.4.3"
+
+cordova-plugin-file-transfer@^1.7.1:
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/cordova-plugin-file-transfer/-/cordova-plugin-file-transfer-1.7.1.tgz#a75d8be2ebc3bb9b23c5b1bbd199214ec267586b"
+  integrity sha1-p12L4uvDu5sjxbG70ZkhTsJnWGs=
+
+cordova-plugin-file@^6.0.2:
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/cordova-plugin-file/-/cordova-plugin-file-6.0.2.tgz#f3911479f8357e9aacb5576674f8d95b31a1fb20"
+  integrity sha512-m7cughw327CjONN/qjzsTpSesLaeybksQh420/gRuSXJX5Zt9NfgsSbqqKDon6jnQ9Mm7h7imgyO2uJ34XMBtA==
+
+cordova-plugin-video-editor@^1.1.3:
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/cordova-plugin-video-editor/-/cordova-plugin-video-editor-1.1.3.tgz#a5fdd2548c1d7e20d33650ca258913ba18fbfcd6"
+  integrity sha1-pf3SVIwdfiDTNlDKJYkTuhj7/NY=
+
+cordova-plugin-zip@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/cordova-plugin-zip/-/cordova-plugin-zip-3.1.0.tgz#176c8248ea20d39f1cf959ef5e6156acca96b217"
+  integrity sha1-F2yCSOog058c+VnvXmFWrMqWshc=
 
 core-js-compat@^3.6.2:
   version "3.6.5"
@@ -8915,6 +8968,11 @@ tree-kill@1.2.2, tree-kill@^1.2.2:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/tree-kill/-/tree-kill-1.2.2.tgz#4ca09a9092c88b73a7cdc5e8a01b507b0790a0cc"
   integrity sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==
+
+ts-md5@^1.2.7:
+  version "1.2.7"
+  resolved "https://registry.yarnpkg.com/ts-md5/-/ts-md5-1.2.7.tgz#b76471fc2fd38f0502441f6c3b9494ed04537401"
+  integrity sha512-emODogvKGWi1KO1l9c6YxLMBn6CEH3VrH5mVPIyOtxBG52BvV4jP3GWz6bOZCz61nLgBc3ffQYE4+EHfCD+V7w==
 
 ts-node@~8.3.0:
   version "8.3.0"

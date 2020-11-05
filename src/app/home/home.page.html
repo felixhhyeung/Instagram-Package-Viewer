@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      Blank
+    <ion-title class="ion-text-center">
+      Instagram
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -9,12 +9,22 @@
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
+      <ion-title size="large">Instagram</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+  <ion-list>
+    <ion-list-header>Packages</ion-list-header>
+    <ion-item *ngFor="let userDescription of userDescriptions" (click)="openUser(userDescription.username)" button>
+      <ion-avatar slot="start">
+        <img class="" [src]="userDescription.icon" style="width: 100%; height: 100%;">
+      </ion-avatar>
+      <ion-label>
+        <h2>{{ userDescription.username }}</h2>
+        <p>{{ userDescription.biography }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+  <ion-button expand="block" (click)="importPackages()">Import Packages</ion-button>
+  <ion-button expand="block" color="danger" (click)="clearPackages()">Clear Packages</ion-button>
 </ion-content>
