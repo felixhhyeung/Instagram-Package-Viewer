@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  packagesServer: "http://felixhhyeung.ddns.net:8080"
+  packagesServer: ""
 };
 
 /*

@@ -14,14 +14,29 @@ export class HomePage {
   	private packageService: PackageService,
     private router: Router,
   ) {
-  	// this.userDescriptions = this.packageService.getUserDescriptions();
-  	this.packageService.getUserDescriptions().then(res => {
-  		// console.log(`res: ${JSON.stringify(res)}`);
-  		this.userDescriptions = res;
-  	});
+    this.load();
+  }
+
+  load() {
+    this.packageService.getUserDescriptions().then(res => {
+      // console.log(`res: ${JSON.stringify(res)}`);
+      this.userDescriptions = res;
+    });
   }
 
   openUser(username: string): void {
     this.router.navigateByUrl(`/user/${username}`);
+  }
+
+  importPackages() {
+    this.packageService.importPackages().then(() => {
+      this.load();
+    });
+  }
+
+  clearPackages() {
+    this.packageService.clearPackages().then(() => {
+      this.load();
+    });
   }
 }

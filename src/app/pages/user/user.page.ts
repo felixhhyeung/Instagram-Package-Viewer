@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationExtras } from '@angular/router';
-import { PackageService, UserDescription, Post } from '../../services/package.service';
+import { PackageService, UserDescription, Post, Media } from '../../services/package.service';
 import { NavController } from '@ionic/angular';
 
 @Component({
@@ -28,6 +28,7 @@ export class UserPage implements OnInit {
       // // You cannot serialise a SafeUrl
       // res[0].mediaArray[0] = JSON.parse(JSON.stringify(res[0].mediaArray[0]));
       this.posts = res;
+      // console.log(`post 0: ${JSON.stringify(this.posts[1].mediaArray[0].thumbnail)}`);
   	});
   }
 
