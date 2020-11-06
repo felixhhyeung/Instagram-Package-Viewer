@@ -163,11 +163,11 @@ export class PackageService {
           // le not found
           if(geFileGroupNameIndex != -1) {
             // gt found, replace
-            console.log(`found geFileGroupNameIndex, replaced ${fileGroupNames[geFileGroupNameIndex]} by ${currentFileGroupName}`);
+            // console.log(`found geFileGroupNameIndex, replaced ${fileGroupNames[geFileGroupNameIndex]} by ${currentFileGroupName}`);
             fileGroupNames[geFileGroupNameIndex] = currentFileGroupName;
           } else {
             // not found, sorted insert
-            console.log(`not found, insert: ${currentFileGroupName}`);
+            // console.log(`not found, insert: ${currentFileGroupName}`);
             fileGroupNames.sortedInsert(currentFileGroupName, (a, b) => b.localeCompare(a));
             // fileGroupNames.push(currentFileGroupName);
           }
