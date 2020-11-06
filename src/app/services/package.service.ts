@@ -321,16 +321,32 @@ export class PackageService {
     console.log('Download complete');
   }
 
-  importPackages = function(): Promise<any> {
+  importPackages = function(progressCallback?: (progress: number) => void): Promise<any> {
     return new Promise(async (resolve, reject) => {
       const zipFilenameExtension = `InstagramPackages.zip`;
+      if(progressCallback) {
+        progressCallback(0);
+      }
       await this.downloadFileFromServer(zipFilenameExtension);
+      if(progressCallback) {
+        progressCallback(.5);
+      }
       const destinationUriResult = await Filesystem.getUri({
         path: ``,
         directory: FilesystemDirectory.Documents,
       });
       // console.log(`destinationUriResult.uri: ${destinationUriResult.uri}`);
-      this.zip.unzip(`${destinationUriResult.uri}/${zipFilenameExtension}`, `${destinationUriResult.uri}/packages`, (progress) => console.log('Unzipping, ' + Math.round((progress.loaded / progress.total) * 100) + '%')).then((result) => {
+      this.zip.unzip(
+        `${destinationUriResult.uri}/${zipFilenameExtension}`, `${destinationUriResult.uri}/packages`,
+        (progress) => {
+          // console.log('Unzipping, ' + Math.round((progress.loaded / progress.total) * 100) + '%')
+          if(progressCallback) {
+            // .5 to 1
+            // console.log(`progressCallback(${progress.loaded / progress.total * .5 + .5})`);
+            progressCallback(Math.round((progress.loaded / progress.total * .5 + .5) * 100) / 100);
+          }
+        }
+      ).then((result) => {
         if(result === 0) {
           resolve();
         }
