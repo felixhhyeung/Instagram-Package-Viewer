@@ -137,7 +137,7 @@ export class PackageService {
 
   async getBiography(username: string): Promise<string> {
   	const entries = await this.file.listDir(this.file.documentsDirectory, `packages/${username}`);
-		const nativeURL = entries.filter(x => x['name'].includes(`${username}_`))[0]['nativeURL'];
+		const nativeURL = entries.filter(x => x['name'].includes(`${username}_`) && x['name'].endsWith(`.json`))[0]['nativeURL'];
 	  const json = JSON.parse(await this.getText(nativeURL));
 		return json['node']['biography'];
   }
@@ -146,7 +146,7 @@ export class PackageService {
     const fileGroupNames: string[] = [];
     fileEntries.forEach(x => {
       // console.log(`fileGroupNames.length: ${fileGroupNames.length}`);
-      const currentFileGroupName = x['name'].split('.').slice(0, -1).join('.');
+      const currentFileGroupName = x['name'].split('.').slice(0, -1).join('.').replace(/UTC_[0-9]{1,2}/gi, 'UTC');
       const currentExtension = x['name'].split('.').pop();
       // skip file with no extension
       if((currentExtension == 'mp4' || currentExtension == 'jpg') && currentFileGroupName != '') {
@@ -163,11 +163,11 @@ export class PackageService {
           // le not found
           if(geFileGroupNameIndex != -1) {
             // gt found, replace
-            // console.log(`found geFileGroupNameIndex, replaced ${fileGroupNames[geFileGroupNameIndex]} by ${currentFileGroupName}`);
+            console.log(`found geFileGroupNameIndex, replaced ${fileGroupNames[geFileGroupNameIndex]} by ${currentFileGroupName}`);
             fileGroupNames[geFileGroupNameIndex] = currentFileGroupName;
           } else {
             // not found, sorted insert
-            // console.log(`not found, insert: ${currentFileGroupName}`);
+            console.log(`not found, insert: ${currentFileGroupName}`);
             fileGroupNames.sortedInsert(currentFileGroupName, (a, b) => b.localeCompare(a));
             // fileGroupNames.push(currentFileGroupName);
           }
@@ -237,7 +237,7 @@ export class PackageService {
   async getCaption(username: string, fileGroupName: string, entries?: any): Promise<string> {
     entries = entries === void 0 ? await this.file.listDir(this.file.documentsDirectory, `packages/${username}`): entries;
     let caption = "";
-    for (const entry of entries.filter(x => x['name'].includes(fileGroupName) && x['name'].includes(`.txt`))) {
+    for (const entry of entries.filter(x => x['name'].includes(fileGroupName) && x['name'].endsWith(`.txt`))) {
       caption += `${await this.getText(entry['nativeURL'])}\n`;
     }
     return caption;
