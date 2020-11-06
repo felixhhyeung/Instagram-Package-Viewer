@@ -290,7 +290,7 @@ export class PackageService {
         quality:50,
       };
       const videoThumbnail = await VideoEditor.createThumbnail(createThumbnailOptions);
-      return videoThumbnail;
+      return this.getSafeUrl(videoThumbnail);
     default:
       return null;
     }
