@@ -25,6 +25,8 @@
       </ion-label>
     </ion-item>
   </ion-list>
-  <ion-button expand="block" (click)="importPackages()">Import Packages</ion-button>
+  <ion-progress-bar *ngIf="importProgress != null" color="primary" [value]="importProgress"></ion-progress-bar>
+  <div *ngIf="importProgress != null">{{ importProgress * 100 }}%</div>
+  <ion-button expand="block" (click)="importPackages()" [disabled]="importProgress != null">Import Packages</ion-button>
   <ion-button expand="block" color="danger" (click)="clearPackages()">Clear Packages</ion-button>
 </ion-content>

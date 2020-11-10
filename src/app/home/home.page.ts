@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, NgZone } from '@angular/core';
 import { PackageService } from '../services/package.service';
 import { Router } from '@angular/router';
 
@@ -9,10 +9,11 @@ import { Router } from '@angular/router';
 })
 export class HomePage {
   userDescriptions;
-
+  importProgress: number;
   constructor(
   	private packageService: PackageService,
     private router: Router,
+    private ngZone: NgZone,
   ) {
     this.load();
   }
@@ -29,13 +30,23 @@ export class HomePage {
   }
 
   importPackages() {
-    this.packageService.importPackages().then(() => {
+    this.importProgress = 0;
+    this.packageService.importPackages((progress) => {
+      if(progress > this.importProgress) {
+        this.ngZone.run(() => {
+          this.importProgress = progress;
+        });
+      }
+    }).error(error => {
+      console.log(`error: ${error}`);
+    }).finally(() => {
       this.load();
+      this.importProgress = null;
     });
   }
 
   clearPackages() {
-    this.packageService.clearPackages().then(() => {
+    this.packageService.clearPackages().finally(() => {
       this.load();
     });
   }
