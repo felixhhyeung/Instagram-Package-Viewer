@@ -248,10 +248,10 @@ export class PackageService {
     return caption;
   }
 
-  async fileExists(cachedFile: string, directory): Promise<boolean> {
+  async fileExists(file: string, directory): Promise<boolean> {
     try {
       await Filesystem.readFile({
-        path: `${cachedFile}`,
+        path: `${file}`,
         directory: directory,
       });
       return true;
@@ -357,12 +357,15 @@ export class PackageService {
             }
           });
           const files = res1.data.files;
-          // console.log(`files: ${JSON.stringify(files)}`);
-          const filesThatExist = (await this.file.listDir(this.file.documentsDirectory, `packages/${usernames[i]}`)).map(x => x['name']);
-          // console.log(`filesThatExist: ${JSON.stringify(filesThatExist)}`);
+          let filesThatExist = [];
+          try {
+            filesThatExist = (await this.file.listDir(this.file.documentsDirectory, `packages/${usernames[i]}`)).map(x => x['name']);
+          } catch (error) {
+
+          }
           for(let j = 0; j < files.length; j++) {
             if(!filesThatExist.includes(files[j])) {
-              // console.log(`not exists file: ${files[j]}`);
+              console.log(`not exists file: ${files[j]}`);
               tasks.push({ username: usernames[i], filename: files[j] });
             }
           }
