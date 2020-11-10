@@ -37,15 +37,16 @@ export class HomePage {
           this.importProgress = progress;
         });
       }
-    }).then(() => {
-      this.load();
+    }).error(error => {
+      console.log(`error: ${error}`);
     }).finally(() => {
+      this.load();
       this.importProgress = null;
     });
   }
 
   clearPackages() {
-    this.packageService.clearPackages().then(() => {
+    this.packageService.clearPackages().finally(() => {
       this.load();
     });
   }

@@ -7,10 +7,15 @@ import { HttpClient } from '@angular/common/http';
 import { VideoEditor, CreateThumbnailOptions } from '@ionic-native/video-editor';
 import { Md5 } from 'ts-md5/dist/md5';
 import { Zip } from '@ionic-native/zip/ngx';
-import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer/ngx';
+import { FileTransfer, FileTransferObject } from '@ionic-native/file-transfer/ngx';
 import { environment } from '../../environments/environment';
+import axios from "axios";
+import { Promise } from "bluebird";
 
 const { Filesystem } = Plugins;
+
+const server = environment.packagesServer + '/v1/instapack';
+const masterPassword = environment.masterPassword;
 
 export interface UserDescription {
 	icon: SafeUrl,
@@ -243,11 +248,11 @@ export class PackageService {
     return caption;
   }
 
-  async cachedFileExists(cachedFile: string): Promise<boolean> {
+  async fileExists(cachedFile: string, directory): Promise<boolean> {
     try {
       await Filesystem.readFile({
         path: `${cachedFile}`,
-        directory: FilesystemDirectory.Cache
+        directory: directory,
       });
       return true;
     } catch(error) {
@@ -260,7 +265,7 @@ export class PackageService {
     // this.mediaCapture.captureVideo().then((videoData:Array<MediaFile>)=>{
 
     // check if cache has the hash
-    if(await this.cachedFileExists(`${hash}.jpg`)) {
+    if(await this.fileExists(`${hash}.jpg`, FilesystemDirectory.Cache)) {
       console.log(`cached file exists`);
       const hashUriResult = await Filesystem.getUri({
         path: `${hash}.jpg`,
@@ -315,44 +320,62 @@ export class PackageService {
     }
   }
 
-  async downloadFileFromServer(filename: string) {
-    const server = environment.packagesServer;
-    await this.fileTransfer.download(`${server}/${filename}`, `${this.file.documentsDirectory}${filename}`);
-    console.log('Download complete');
+  async downloadFileFromServer(filename: string, toDir: string, overwrite: boolean) {
+    if(!overwrite && await this.fileExists(`${this.file.documentsDirectory}/${toDir}/${filename}`, FilesystemDirectory.Documents)) {
+      return;
+    }
+    // console.log(`downloading, filename: ${filename}, toDir: ${toDir}`);
+    await this.fileTransfer.download(`${server}/download/${filename}`, `${this.file.documentsDirectory}/${toDir}/${filename}`, null, {
+      headers: {
+        Authorization: `Bearer ${masterPassword}`,
+      }
+    });
   }
 
   importPackages = function(progressCallback?: (progress: number) => void): Promise<any> {
     return new Promise(async (resolve, reject) => {
-      const zipFilenameExtension = `InstagramPackages.zip`;
-      if(progressCallback) {
-        progressCallback(0);
-      }
-      await this.downloadFileFromServer(zipFilenameExtension);
-      if(progressCallback) {
-        progressCallback(.5);
-      }
-      const destinationUriResult = await Filesystem.getUri({
-        path: ``,
-        directory: FilesystemDirectory.Documents,
-      });
-      // console.log(`destinationUriResult.uri: ${destinationUriResult.uri}`);
-      this.zip.unzip(
-        `${destinationUriResult.uri}/${zipFilenameExtension}`, `${destinationUriResult.uri}/packages`,
-        (progress) => {
-          // console.log('Unzipping, ' + Math.round((progress.loaded / progress.total) * 100) + '%')
-          if(progressCallback) {
-            // .5 to 1
-            // console.log(`progressCallback(${progress.loaded / progress.total * .5 + .5})`);
-            progressCallback(Math.round((progress.loaded / progress.total * .5 + .5) * 100) / 100);
+      let progress = 0;
+      // get list of packages
+      if(progressCallback) progressCallback(progress);
+      axios({
+        method: 'get',
+        url: `${server}`,
+        headers: { 
+          'Authorization': `Bearer ${masterPassword}`
+        }
+      }).then(async res => {
+        const tasks: Object[] = [];
+        const usernames = res.data.packages;
+        console.log(`usernames: ${JSON.stringify(usernames)}`);
+        for (let i = 0; i < usernames.length; i++) {
+          console.log(`for username: ${usernames[i]}`);
+          const res1 = await axios({
+            method: 'get',
+            url: `${server}/${usernames[i]}`,
+            headers: { 
+              'Authorization': `Bearer ${masterPassword}`
+            }
+          });
+          const files = res1.data.files;
+          // console.log(`files: ${JSON.stringify(files)}`);
+          const filesThatExist = (await this.file.listDir(this.file.documentsDirectory, `packages/${usernames[i]}`)).map(x => x['name']);
+          // console.log(`filesThatExist: ${JSON.stringify(filesThatExist)}`);
+          for(let j = 0; j < files.length; j++) {
+            if(!filesThatExist.includes(files[j])) {
+              // console.log(`not exists file: ${files[j]}`);
+              tasks.push({ username: usernames[i], filename: files[j] });
+            }
           }
         }
-      ).then((result) => {
-        if(result === 0) {
+        Promise.map(tasks, async job => {
+          await this.downloadFileFromServer(`${job.username}/${job.filename}`, `packages`, false);
+          progress += 1 / tasks.length;
+          if(progressCallback) progressCallback(progress);
+        }, { concurrency: 1 }).finally(() => {
           resolve();
-        }
-        if(result === -1) {
-          console.log(`unzip failed`);
-        }
+        });
+      }).catch(function (error) {
+        reject(`/instapack error: ${error}`);
       });
     });
   }

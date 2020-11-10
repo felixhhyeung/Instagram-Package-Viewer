@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  packagesServer: "http://felixhhyeung.ddns.net:8080"
+  packagesServer: "http://felixhhyeung.ddns.net:49151",
+  masterPassword: "xoqvweqsOXpqPAPishuqXctkUHqEYcWyLnuStWhUHBBFiN4$TrVTYYDoLgiNnSf9"
 };
 
 /*
