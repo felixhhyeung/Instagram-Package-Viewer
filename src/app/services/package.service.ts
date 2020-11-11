@@ -374,7 +374,7 @@ export class PackageService {
           await this.downloadFileFromServer(`${job.username}/${job.filename}`, `packages`, false);
           progress += 1 / tasks.length;
           if(progressCallback) progressCallback(progress);
-        }, { concurrency: 1 }).finally(() => {
+        }, { concurrency: 3 }).finally(() => {
           resolve();
         });
       }).catch(function (error) {
@@ -382,6 +382,7 @@ export class PackageService {
       });
     });
   }
+
   clearPackages = function(): Promise<any> {
     return new Promise(async (resolve, reject) => {
       await Filesystem.rmdir({
@@ -390,6 +391,22 @@ export class PackageService {
         recursive: true,
       });
       resolve();
+    });
+  }
+
+  pack = function(username: string): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      axios({
+        method: 'put',
+        url: `${server}/${username}`,
+        headers: { 
+          'Authorization': `Bearer ${masterPassword}`
+        }
+      }).then(async res => {
+        resolve(res);
+      }).catch(function (error) {
+        reject(`/instapack error: ${error}`);
+      });
     });
   }
 }

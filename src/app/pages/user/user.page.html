@@ -18,7 +18,7 @@
 		<p>{{ userDescription.biography }}</p>
 		<div style="display: flex;">
 			<ion-button expend="block" style="flex: 1;" color="primary">Follow</ion-button>
-			<ion-button expend="block" style="flex: 1;" color="secondary" fill="outline">Message</ion-button>
+			<ion-button (click)="pack(username)" expend="block" style="flex: 1;" color="secondary" fill="outline">Pack</ion-button>
 		</div>
 	</div>
 	<div *ngIf="posts" class="" style="display: flex; flex-flow: row wrap;">

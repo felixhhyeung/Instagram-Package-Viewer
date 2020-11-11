@@ -30,6 +30,7 @@
     "@ionic-native/video-editor": "^5.29.0",
     "@ionic-native/zip": "^5.29.0",
     "@ionic/angular": "^5.0.0",
+    "@ionic/storage": "^2.3.1",
     "@types/axios": "^0.14.0",
     "axios": "^0.21.0",
     "bluebird": "^3.7.2",
