@@ -11,6 +11,7 @@ import { FileTransfer, FileTransferObject } from '@ionic-native/file-transfer/ng
 import { environment } from '../../environments/environment';
 import axios from "axios";
 import { Promise } from "bluebird";
+import { StorageService } from './storage.service';
 
 const { Filesystem } = Plugins;
 
@@ -82,12 +83,14 @@ function findInsertionIndex<T>(arr: T[], element: T, comparatorFn: any): number 
 export class PackageService {
   tempObjects: TempObject[] = [];
   fileTransfer: FileTransferObject = this.transfer.create();
+
   constructor(
   	private file: File,
   	private domSanitizer: DomSanitizer,
   	public httpClient: HttpClient,
     private zip: Zip,
     private transfer: FileTransfer,
+    private storageServoce: StorageService,
   ) {
   }
 
@@ -179,7 +182,7 @@ export class PackageService {
         }
       }
     });
-    console.log(`fileGroupNames: ${JSON.stringify(fileGroupNames)}`);
+    // console.log(`fileGroupNames: ${JSON.stringify(fileGroupNames)}`);
     return fileGroupNames;
   }
 
@@ -190,7 +193,9 @@ export class PackageService {
   		this.getFileGroupNames(entries).filter(x => !x.includes(username) && !x.includes(`_profile_pic`)).forEach(x => promises.push(this.getPost(username, x, entries)));
   		Promise.all(promises).then(values => {
   			resolve(values);
-  		});
+  		}).error(error => {
+        reject(`getPosts error: ${error}`);
+      });
   	});
   }
 
@@ -290,7 +295,7 @@ export class PackageService {
         fileUri: url,
         // width:160,
         // height:206,
-        atTime:1,
+        atTime:.5,
         outputFileName: `${hash}`,
         quality:50,
       };
@@ -374,7 +379,7 @@ export class PackageService {
           await this.downloadFileFromServer(`${job.username}/${job.filename}`, `packages`, false);
           progress += 1 / tasks.length;
           if(progressCallback) progressCallback(progress);
-        }, { concurrency: 1 }).finally(() => {
+        }, { concurrency: 3 }).finally(() => {
           resolve();
         });
       }).catch(function (error) {
@@ -382,6 +387,7 @@ export class PackageService {
       });
     });
   }
+
   clearPackages = function(): Promise<any> {
     return new Promise(async (resolve, reject) => {
       await Filesystem.rmdir({
@@ -389,7 +395,31 @@ export class PackageService {
         directory: FilesystemDirectory.Documents,
         recursive: true,
       });
+      await Filesystem.rmdir({
+        path: ``,
+        directory: FilesystemDirectory.Cache,
+        recursive: true,
+      });
       resolve();
+    });
+  }
+
+  pack = function(username: string): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      this.storageService.getStorage('loginUsername').then(loginUsername => {
+        axios({
+          method: 'put',
+          url: `${server}/${username}`,
+          headers: {
+            'Authorization': `Bearer ${masterPassword}`,
+            'loginusername': loginUsername,
+          }
+        }).then(async res => {
+          resolve(res);
+        }).catch(function (error) {
+          reject(`/instapack error: ${error}`);
+        });
+      });
     });
   }
 }

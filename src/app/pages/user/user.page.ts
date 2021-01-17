@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationExtras } from '@angular/router';
 import { PackageService, UserDescription, Post, Media } from '../../services/package.service';
 import { NavController } from '@ionic/angular';
+import { ToastController, AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-user',
@@ -16,6 +17,8 @@ export class UserPage implements OnInit {
   	private activatedRoute: ActivatedRoute,
   	private packageService: PackageService,
     private navController: NavController,
+    private toastController: ToastController,
+    private alertController: AlertController,
   ) { }
 
   ngOnInit() {
@@ -39,5 +42,34 @@ export class UserPage implements OnInit {
       }
     };
     this.navController.navigateForward(['post'], navigationExtras);
+  }
+
+  async toast(message: string) {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 2000
+    });
+    toast.present();
+  }
+
+  async alert(message: string, header?: string) {
+    const alert = await this.alertController.create({
+      // cssClass: 'my-custom-class',
+      header: header === void 0 ? 'Alert': header,
+      // subHeader: 'Subtitle',
+      message: message,
+      buttons: ['Dismiss']
+    });
+    await alert.present();
+  }
+
+  pack(username: string) {
+    // console.log(`pack(${username})`);
+    this.toast(`Packing ${username}.`);
+    this.packageService.pack(username).then(res => {
+      this.toast(`Packing ${username} success.`);
+    }).catch(error => {
+      this.alert(error, `Packing ${username} failed.`);
+    });
   }
 }
