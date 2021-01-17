@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 export class HomePage {
   userDescriptions;
   importProgress: number;
+  loginUsername: string;
   constructor(
   	private packageService: PackageService,
     private router: Router,

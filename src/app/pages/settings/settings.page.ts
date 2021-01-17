@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { StorageService } from '../../services/storage.service'
+import { StorageService } from '../../services/storage.service';
 
 @Component({
   selector: 'app-settings',
@@ -21,8 +21,13 @@ export class SettingsPage implements OnInit {
     });
   }
 
+  save() {
+    this.saveLoginUsername();
+  }
+
   saveLoginUsername() {
-    console.log(`saveLoginUsername()`);
+    // console.log(`saveLoginUsername()`);
+    // console.log(`this.loginUsername: ${this.loginUsername}`);
     this.storageService.setStorage('loginUsername', this.loginUsername);
   }
 }

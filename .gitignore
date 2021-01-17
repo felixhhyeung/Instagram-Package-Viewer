@@ -32,3 +32,4 @@ npm-debug.log*
 src/assets/packages
 .env
 src/environments
+ios/App/App.xcodeproj/project.pbxproj
