@@ -12,6 +12,7 @@ import { File } from '@ionic-native/file/ngx';
 import { HttpClientModule } from '@angular/common/http';
 import { Zip } from '@ionic-native/zip/ngx';
 import { FileTransfer } from '@ionic-native/file-transfer/ngx';
+import { FTP } from '@awesome-cordova-plugins/ftp/ngx';
 
 @NgModule({
   declarations: [AppComponent],
@@ -29,6 +30,7 @@ import { FileTransfer } from '@ionic-native/file-transfer/ngx';
     File,
     Zip,
     FileTransfer,
+    FTP,
   ],
   bootstrap: [AppComponent]
 })

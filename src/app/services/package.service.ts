@@ -11,6 +11,7 @@ import { FileTransfer, FileTransferObject } from '@ionic-native/file-transfer/ng
 import { environment } from '../../environments/environment';
 import axios from "axios";
 import { Promise } from "bluebird";
+import { AlbumService } from '../services/album.service';
 
 const { Filesystem } = Plugins;
 
@@ -88,6 +89,7 @@ export class PackageService {
   	public httpClient: HttpClient,
     private zip: Zip,
     private transfer: FileTransfer,
+    private albumService: AlbumService,
   ) {
   }
 
@@ -333,6 +335,9 @@ export class PackageService {
   }
 
   importPackages = function(progressCallback?: (progress: number) => void): Promise<any> {
+    this.albumService.connect()
+      .then(() => this.albumService.ls(`/`))
+      .finally(() => this.albumService.disconnect());
     return new Promise(async (resolve, reject) => {
       let progress = 0;
       // get list of packages

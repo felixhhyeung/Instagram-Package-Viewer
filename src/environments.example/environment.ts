@@ -5,8 +5,11 @@
 export const environment = {
   production: false,
   packagesServer: "",
-  masterPassword: ""
-
+  masterPassword: "",
+  ftpServer: {
+    username: "",
+    password: "",
+  },
 };
 
 /*

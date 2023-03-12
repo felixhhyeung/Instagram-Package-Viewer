@@ -11,6 +11,10 @@
     <param name="ios-package" value="CDVFileTransfer"/>
   </feature>
 
+  <feature name="Ftp">
+    <param name="ios-package" value="CDVFtp"/>
+  </feature>
+
   <feature name="VideoEditor">
     <param name="ios-package" value="VideoEditor"/>
   </feature>
