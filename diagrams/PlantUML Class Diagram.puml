@@ -1,0 +1,41 @@
+@startuml
+class Album {
+    +path: string
+    +metadataFiles: MetadataFile[]
+    +medias: Media[]
+    +albums: Album[]
+}
+
+class Media {
+    +path: string
+    +date: Date
+    +thumbnail: Image
+    +mediaSupports: MediaSupport[]
+}
+
+abstract class MetadataFile {
+    #path: string
+}
+
+class Database {
+    +path: string
+    +thumbnailPath: string
+}
+
+class Description {
+    +path: string
+    +description: string
+}
+
+class Art {
+    +image: Image
+}
+
+Album *-- Album
+Album *-- Media
+Album *-- MetadataFile
+Media *-- MetadataFile
+MetadataFile <|-- Database
+MetadataFile <|-- Description
+MetadataFile <|-- Art
+@enduml
